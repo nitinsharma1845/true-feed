@@ -3,8 +3,10 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/context/authProvider";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+import Provider from "@/context/queryClientProvider";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +34,9 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          {children}
+          <Provider>{children}</Provider>
+
+          <Toaster />
         </body>
       </AuthProvider>
     </html>
