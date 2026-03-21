@@ -1,22 +1,34 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-export { default } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
+import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  const url = request.nextUrl;
+export async function middleware(req: NextRequest) {
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
-  if (
-    token &&
-    (url.pathname.startsWith("/sigin") ||
-      url.pathname.startsWith("/sigup") ||
-      url.pathname.startsWith("/verify"))
-  ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  const { pathname } = req.nextUrl;
+
+  const isAuthPage =
+    pathname.startsWith("/signin") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/verify");
+  const isProtectedPage = pathname.startsWith("/dashboard");
+
+  // not logged in → block dashboard
+  if (!token && isProtectedPage) {
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
+
+  // logged in → block auth pages
+  if (token && isAuthPage) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/signin", "/signup", "/", "/verify/:path*", "/dashboard/:path*"],
+  matcher: ["/signin", "/signup", "/dashboard/:path*"],
 };

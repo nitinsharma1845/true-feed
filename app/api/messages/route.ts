@@ -28,7 +28,10 @@ export async function GET() {
         $match: { _id: userId },
       },
       {
-        $unwind: "$messages",
+        $unwind: {
+          path: "$messages",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $sort: { "messages.createdAt": -1 },
@@ -50,11 +53,11 @@ export async function GET() {
 
     return Response.json(
       {
-        success: false,
-        message: "User not found",
+        success: true,
+        message: "messages fetched successfully",
         messages: userDoc[0].messages,
       },
-      { status: 404 },
+      { status: 200 },
     );
   } catch (error) {
     console.log("error while getting messages :", error);
@@ -98,6 +101,7 @@ export async function POST(req: Request) {
     const newMessage = { content: message, createdAt: new Date() };
 
     user.messages.push(newMessage as Message);
+    await user.save();
 
     return Response.json(
       {
@@ -106,7 +110,6 @@ export async function POST(req: Request) {
       },
       { status: 201 },
     );
-    
   } catch (error) {
     console.log("error while posting messages :", error);
     return Response.json(
@@ -118,3 +121,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

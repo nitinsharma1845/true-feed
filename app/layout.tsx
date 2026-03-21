@@ -5,6 +5,7 @@ import AuthProvider from "@/context/authProvider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import Provider from "@/context/queryClientProvider";
+import Navbar from "@/components/common/NavigationBar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+          <Navbar />
           <Provider>{children}</Provider>
 
           <Toaster />
