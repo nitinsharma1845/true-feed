@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ErrorResponse } from "resend";
 import { toast } from "sonner";
@@ -51,6 +47,23 @@ export const useDeleteMessage = () => {
     onError: (error: AxiosError<ErrorResponse>) => {
       const message =
         error.response?.data?.message || "Failed to delete message";
+
+      toast.error(message);
+    },
+  });
+};
+
+export const useSendMessage = () => {
+  return useMutation({
+    mutationFn: async (payload: { message: string; username: string }) => {
+      const { data } = await axios.post("/api/messages", payload);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Message sent successfully");
+    },
+    onError: (error: AxiosError<ErrorResponse>) => {
+      const message = error.response?.data?.message || "Failed to send message";
 
       toast.error(message);
     },
