@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { CircleCheck, CircleX, Eye, EyeClosed, Loader2 } from "lucide-react";
+import { AxiosError } from "axios";
 
 function Signup() {
   const [username, setUsername] = useState("");
@@ -38,6 +39,7 @@ function Signup() {
       email: "",
       password: "",
     },
+    mode: "onChange",
   });
 
   async function onSubmit(data: z.infer<typeof signupSchema>) {
@@ -45,12 +47,18 @@ function Signup() {
     if (!isValid) return;
     signup.mutate(data, {
       onSuccess: (res) => {
-        console.log("Res of mutation function : ", res);
-        if (res?.success) {
-          toast.success(res?.message || "Account created successfully");
-          router.replace(`/verify/${username}`);
+        toast.success(res?.message || "Account created successfully");
+        router.replace(`/verify/${username}`);
+      },
+      onError: (error: unknown) => {
+        if (error instanceof AxiosError) {
+          const message =
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to verify email";
+          toast.error(message);
         } else {
-          toast.error("Faild to create account.");
+          toast.error("Something went wrong");
         }
       },
     });
@@ -161,8 +169,18 @@ function Signup() {
             </FieldSet>
             <FieldSet></FieldSet>
             <Field orientation="horizontal">
-              <Button type="submit" className="w-full cursor-pointer">
-                Submit
+              <Button
+                type="submit"
+                className="w-full cursor-pointer"
+                disabled={signup.isPending}
+              >
+                {signup.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" /> please wait
+                  </div>
+                ) : (
+                  "Signup"
+                )}
               </Button>
             </Field>
           </FieldGroup>

@@ -1,6 +1,9 @@
 import { signupSchema } from "@/schemas/signupSchema";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import { ErrorResponse } from "resend";
+import { toast } from "sonner";
 import z from "zod";
 
 const checkUsername = async (username: string) => {
@@ -24,6 +27,35 @@ export const useSignup = () => {
     mutationFn: async (payload: z.infer<typeof signupSchema>) => {
       const { data } = await axios.post("/api/signup", payload);
       return data;
+    },
+  });
+};
+
+export const useVerifyEmail = () => {
+  const router = useRouter();
+  return useMutation({
+    mutationFn: async ({
+      username,
+      verifyCode,
+    }: {
+      username: string;
+      verifyCode: string;
+    }) => {
+      const { data } = await axios.post("/api/verify-code", {
+        username,
+        verifyCode,
+      });
+
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Email verified successfully.Login to get messages");
+      router.replace("/signin");
+    },
+    onError: (error: AxiosError<ErrorResponse>) => {
+      const message = error.response?.data?.message || "Failed to verify email";
+
+      toast.error(message);
     },
   });
 };

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           success: false,
-          message: "User not foundr",
+          message: "User not found",
         },
         { status: 404 },
       );
