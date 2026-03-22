@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 declare global {
   var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: mongoose.Connection | null;
+    promise: Promise<mongoose.Connection> | null;
   };
 }
 
 export async function dbConnect() {
-  if (global.mongoose && global.mongoose.conn) {
-    console.log("🟢 DB already connected");
+  if (global.mongoose?.conn) {
+    console.log("DB already connected");
     return global.mongoose.conn;
   }
 
@@ -18,12 +18,13 @@ export async function dbConnect() {
   }
 
   if (!global.mongoose.promise) {
-    console.log("🟡 Creating new DB connection...");
+    console.log("Creating new DB connection...");
+
     global.mongoose.promise = mongoose
       .connect(process.env.MONGO_URI!)
       .then((mongooseInstance) => {
-        console.log("🔥 DB connected successfully");
-        return mongooseInstance;
+        console.log("DB connected successfully");
+        return mongooseInstance.connection; //
       });
   }
 

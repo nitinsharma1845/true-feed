@@ -56,7 +56,6 @@ export default function MessagePage() {
 
   const messageContent = watch("content");
 
-
   const onSubmit = (data: z.infer<typeof messageSchema>) => {
     if (!username) {
       toast.error("Invalid user");
@@ -73,7 +72,7 @@ export default function MessagePage() {
   };
 
   const handleAiMessages = () => {
-    suggest.mutate({}, { onSuccess: (res) => setMsgStr(res) });
+    suggest.mutate(undefined, { onSuccess: (res) => setMsgStr(res) });
   };
 
   const handleSelectSuggestion = (msg: string) => {

@@ -26,7 +26,7 @@ export const useFetchActiveStatus = () => {
 
 export const useChangeStatus = () => {
   return useMutation({
-    mutationFn: async (payload) => {
+    mutationFn: async (payload: { acceptMessage: boolean }) => {
       const { data } = await axios.post("/api/accept-messages", payload);
       return data;
     },
@@ -36,7 +36,7 @@ export const useChangeStatus = () => {
 export const useDeleteMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (messageId) => {
+    mutationFn: async (messageId: string) => {
       const { data } = await axios.delete(`/api/messages/${messageId}`);
       return data;
     },

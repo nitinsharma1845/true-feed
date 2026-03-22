@@ -17,9 +17,12 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        if (!credentials) throw new Error("No credentials provided");
+        if (!credentials) {
+          throw new Error("No credentials provided");
+        }
 
         await dbConnect();
+
         try {
           const user = await UserModel.findOne({
             $or: [
@@ -29,23 +32,29 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            throw new Error("No user found with this email");
+            throw new Error("No user found");
           }
 
           if (!user.isVerified) {
             throw new Error("Please verify your account first.");
           }
 
-          const isCorrectPassword = await bcrypt.compare(
+          const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password,
           );
 
-          if (!isCorrectPassword) {
+          if (!isPasswordCorrect) {
             throw new Error("Invalid credentials");
           }
 
-          return user;
+          return {
+            id: user._id.toString(),
+            _id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            isVerified: user.isVerified,
+          };
         } catch (error) {
           if (error instanceof Error) {
             throw new Error(error.message);
