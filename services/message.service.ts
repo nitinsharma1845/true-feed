@@ -69,3 +69,12 @@ export const useSendMessage = () => {
     },
   });
 };
+
+export const useGenerateMessages = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await axios.post("/api/suggest-messages");
+      return data;
+    },
+  });
+};

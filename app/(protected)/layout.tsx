@@ -22,7 +22,7 @@ const ProtectLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  return <div className="pt-20">{children}</div>;
+  return <div>{children}</div>;
 };
 
 export default ProtectLayout;

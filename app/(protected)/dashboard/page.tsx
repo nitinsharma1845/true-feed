@@ -27,11 +27,18 @@ export default function Dashboard() {
   const { data, isLoading } = useGetMessage();
   const isAcceptingMessage = useFetchActiveStatus();
   const changeStatus = useChangeStatus();
-  const [open, setOpen] = useState<boolean>(false);
 
   const [copied, setCopied] = useState(false);
   const [isAccepting, setIsAccepting] = useState<boolean>(true);
   const [profileUrl, setProfileUrl] = useState<string>("");
+
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    document.title = "Dashboard | True-Feed";
+  }, []);
 
   useEffect(() => {
     if (isAcceptingMessage.isSuccess && isAcceptingMessage.data) {
@@ -60,12 +67,11 @@ export default function Dashboard() {
       { acceptMessage: checked },
       {
         onSuccess: (res) => {
-          console.log(res);
           const st = res.user.isAcceptingMessage;
           setIsAccepting(st);
           toast.success(
             st === true
-              ? "You are now accepting the anonymus messages"
+              ? "You are now accepting anonymous messages"
               : "You are not accepting messages anymore",
           );
         },
@@ -150,40 +156,33 @@ export default function Dashboard() {
           </div>
         ) : data?.messages?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.messages.map(
-              (message: { content: string; _id: string }, index: number) => (
-                <Card
-                  key={index}
-                  className="group hover:border-primary/50 transition-all duration-300 shadow-sm relative overflow-hidden"
-                >
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                        Anonymous Message
-                      </CardTitle>
-                      <Button
-                        onClick={() => setOpen(true)}
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-destructive opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <DeleteMessageDialog
-                        open={open}
-                        setOpen={setOpen}
-                        messageId={message._id}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-base font-medium leading-relaxed italic text-foreground/90">
-                      "{message.content}"
-                    </p>
-                  </CardContent>
-                </Card>
-              ),
-            )}
+            {data.messages.map((message: { content: string; _id: string }) => (
+              <Card
+                key={message._id}
+                className="group hover:border-primary/50 transition-all duration-300 shadow-sm relative overflow-hidden"
+              >
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                      Anonymous Message
+                    </CardTitle>
+                    <Button
+                      onClick={() => setSelectedMessageId(message._id)}
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-destructive opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base font-medium leading-relaxed italic text-foreground/90">
+                    "{message.content}"
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : (
           <div className="border-2 border-dashed rounded-3xl flex flex-col items-center justify-center py-20 bg-muted/5">
@@ -198,6 +197,18 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      <DeleteMessageDialog
+        open={!!selectedMessageId}
+        setOpen={(isOpen) => !isOpen && setSelectedMessageId(null)}
+        messageId={selectedMessageId || ""}
+      />
+
+      <footer className="py-12 text-center opacity-60">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">
+          &copy; 2026 True-Feed &bull; Dashboard
+        </p>
+      </footer>
     </div>
   );
 }
